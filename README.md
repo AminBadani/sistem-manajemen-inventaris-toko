@@ -9,7 +9,7 @@
 
 ## Auhtor
 
-- Muhammad Aziz Arrahman
+- Muhammad Aziz Arrahman - [@MuhammadAzizx](https://github.com/MuhammadAzizx)
 - Ricky Ardi Wardana
 - Indra Bima Junio Saputra
 - Ahmad Amin Badani - [@AminBadani](https://github.com/AminBadani/)
