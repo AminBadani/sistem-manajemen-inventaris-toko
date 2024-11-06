@@ -8,7 +8,7 @@ uses
 var 
   sqlite3: TSQLite3Connection; // Untuk menyimpan konfigurasi koneksi ke database
   dbTransaction: TSQLTransaction; // Untuk menyimpan konfigurasi transaction berdasarkan database
-  dbQuery: TSQLQuery; { Masih belum terpakai }
+  dbQuery: TSQLQuery; // Untuk mengambil record dari database
 
 procedure BukaDatabase(nama_database: string);
 var 
@@ -19,11 +19,16 @@ begin
   // Membuat komponen 
   sqlite3       := TSQLite3Connection.Create(nil); // Menyiapkan koneksi ke database
   dbTransaction := TSQLTransaction.Create(nil); // Menyiapkan transaction untuk dapat mengakses dan memodifikasi isi database 
+  dbQuery       := TSQLQuery.Create(nil); // Menyiapkan komponen untuk SQL command
 
-  // Mengatur komponen
+  // Menkonfigurasi database
   sqlite3.Transaction     := dbTransaction; // Mengatur koneksi ke transaction yang digunakan
   sqlite3.DatabaseName    := nama_database; // Mengatur nama database sesuai paremeter nama_database
+  
+  // Menyiapkan komponen
   dbTransaction.Database  := sqlite3; // Mengatur database untuk transaction
+  dbQuery.Transaction   := dbTrans; // Mengatur transaction untuk query
+  dbQuery.Database      := sqlite3; // Mengatur database yang digunakan untuk menjalankan query
 
   // Mengecek apakah file sudah ada
   if (not FileExists(nama_database)) then
@@ -87,6 +92,27 @@ begin
       writeln('Error tambah barang?! ', E.Message)
     end;
   end;
+end;
+
+procedure EditBarang(id_barang: integer);
+var 
+  queryEditBarang: String
+
+begin
+  try
+
+  except
+    on E: Exception do
+    begin
+      TutupDatabase;
+      writeln('Error edit barang?! ', E.Message)  
+    end;
+  end;
+end;
+
+procedure DetailBarang(id_barang: integer);
+begin
+  
 end;
 
 begin
