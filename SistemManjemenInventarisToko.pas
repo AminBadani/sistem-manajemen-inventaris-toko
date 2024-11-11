@@ -4,76 +4,164 @@ USES
   crt, fpjson, jsonparser, sysutils, classes, jsonconf;
 
 VAR
-  DataBarang: TJSONData; // Untuk menampung semua data barang yang ada di dalam file json
-  KeluarProgram: Boolean = false;  // Untuk mengeluarkan pengguna dari program
+  dataBarang: TJSONData; // Untuk menampung semua data barang yang ada di dalam file json
+  keluarProgram: Boolean = false;  // Untuk mengeluarkan pengguna dari program
 
-  PilihMenu: integer; // Untuk menampung pilihan pengguna berdasarkan menu utama yang ada
-  PilihMenuBarang: integer; // Untuk menampung pilihan ketika tambah, edit, dan hapus
+  pilihMenu: integer; // Untuk menampung pilihan pengguna berdasarkan menu utama yang ada
+  pilihMenuBarang: integer; // Untuk menampung pilihan ketika tambah, edit, dan hapus
 
-// Membuat file json yang masih kosong
-procedure BuatJSON(namaFile: string);
+// Membuat file json baru
+procedure BuatJSON(nama_file: string);
 var
-  DataBarangBaru: TJSONConfig; // Untuk membuat file json
+  fileJsonBaru: TJSONConfig; // Untuk membuat file json
 begin
-  DataBarangBaru := TJSONConfig.Create(nil);
+  fileJsonBaru := TJSONConfig.Create(nil);
 
   try
-    DataBarangBaru.Formatted := True;
-    DataBarangBaru.Filename := namaFile;
+    fileJsonBaru.Formatted := True;
+    fileJsonBaru.Filename := nama_file;
+
+    fileJsonBaru.SetValue('/0/id', 1);
+    fileJsonBaru.SetValue('/0/nama', 'Sabun cuci');
+    fileJsonBaru.SetValue('/0/merk', 'Lifebuoy');
+    fileJsonBaru.SetValue('/0/stok', 20);
+    fileJsonBaru.SetValue('/0/harga', 10000);
   finally
-    DataBarangBaru.Free;
+    fileJsonBaru.Free;
   end;
 end;
 
 // Untuk membaca semua data barang yang ada di dalam file json
-function BacaJSON(const namaFile: string): TJSONData;
+function BacaJSON(nama_file: string): TJSONData;
 var 
   // Menyimpan isi dari file secara utuh yang masih berupa string 
   // Menggunakan memory stream untuk mempercepat ketika membaca file
-  IsiFile: TMemoryStream; 
-  IsiFileJSON: TJSONData; // Untuk menyimpan isi dari file dalam bentuk json
+  isiFile: TMemoryStream; 
+  isiFileJSON: TJSONData; // Untuk menyimpan isi dari file dalam bentuk json
 begin
-  IsiFile := TMemoryStream.Create;
+  isiFile := TMemoryStream.Create;
   try
     try
-      IsiFile.loadFromFile(namaFile);
-      IsiFileJSON := GetJSON(IsiFile);
+      isiFile.loadFromFile(nama_file);
+      isiFileJSON := GetJSON(isiFile);
     except
       on E:Exception do
-        writeln('File ', namaFile, ' could not be found');
+        writeln('File ', nama_file, ' tidak ditemukan');
     end;
   finally
-    IsiFile.free;
+    isiFile.Free;
   end;
 
-  exit(IsiFileJSON);
+  exit(isiFileJSON);
 end;
 
 // Menampilkan semua data barang ke terminal
 procedure TampilkanSemuaBarang(list_data_barang: TJSONData);
 var
-  DetailBarang: TJSONData; // Untuk menampung satu barang beserta properti-nya
-  Barang: TJSONObject;  // Untuk menampung properti spesifik dari barang
+  detailBarang: TJSONData; // Untuk menampung satu barang beserta properti-nya
+  barang: TJSONObject;  // Untuk menampung properti spesifik dari barang
   i: integer;
 begin 
   ClrScr;
 
-  writeln('------ Data semua barang ------');
-  for i := 0 to list_data_barang.Count - 1 do
-    begin
-      DetailBarang := list_data_barang.Items[i];
-      Barang := DetailBarang as TJSONObject;
+  try
+    writeln('------ Data semua barang ------');
+    for i := 0 to list_data_barang.Count - 1 do
+      begin
+        detailBarang := list_data_barang.Items[i];
+        barang := detailBarang as TJSONObject;
 
-      writeln('ID barang: ', Barang.Get('id'));
-      writeln('Nama barang: ', Barang.Get('nama'));
-      writeln('Stok barang: ', Barang.Get('stok'));
-      writeln('Harga barang: ', Barang.Get('harga'), sLineBreak);
-    end;
+        writeln('ID barang: ', barang.Get('id'));
+        writeln('Nama barang: ', barang.Get('nama'));
+        writeln('Merk barang: ', barang.Get('merk'));
+        writeln('Stok barang: ', barang.Get('stok'));
+        writeln('Harga barang: ', barang.Get('harga'), sLineBreak);
+      end;  
+  finally
+    detailBarang.Free;
+  end;
+end;
+
+procedure TambahBarangBaru(nama_file: string);
+var
+  fileJsonLama: TJSONConfig;
+  dataBarangLama: TJSONData;
+  barangLama: TJSONObject;
+
+  namaBarangBaru: string;
+  merkBarangBaru: string;
+  stokBarangBaru: integer;
+  hargaBarangBaru: longint;
+
+  temporaryString: string;
+  i: integer;
+
+begin
+  ClrScr;
+  fileJsonLama := TJSONConfig.Create(nil);
+
+  writeln('------ Data semua barang ------');
+  write('Masukkan nama barang baru: ');
+  readln(namaBarangBaru);
+  write('Masukkan merk barang baru: ');
+  readln(merkBarangBaru);
+  write('Masukkan stok barang baru: ');
+  readln(stokBarangBaru);
+  write('Masukkan harga barang baru: ');
+  readln(hargaBarangBaru);
+
+  try
+    fileJsonLama.Formatted := True;
+    fileJsonLama.Filename := nama_file;
+
+    dataBarangLama := BacaJSON(nama_file);
+
+    for i := 0 to dataBarangLama.Count - 1 do
+      begin
+        barangLama := dataBarangLama.Items[i] as TJSONObject;
+
+        temporaryString := '/' + IntToStr(i) + '/id';
+        fileJsonLama.SetValue(temporaryString, barangLama.Integers['id']);
+
+        temporaryString := '/' + IntToStr(i) + '/nama';
+        fileJsonLama.SetValue(temporaryString, barangLama.Get('nama', ''));
+
+        temporaryString := '/' + IntToStr(i) + '/merk';
+        fileJsonLama.SetValue(temporaryString, barangLama.Get('merk', ''));
+
+        temporaryString := '/' + IntToStr(i) + '/stok';
+        fileJsonLama.SetValue(temporaryString, barangLama.Integers['stok']);
+
+        temporaryString := '/' + IntToStr(i) + '/harga';
+        fileJsonLama.SetValue(temporaryString, barangLama.Integers['harga']);
+      end;
+
+    temporaryString := '/' + IntToStr(dataBarangLama.Count) + '/id';
+    fileJsonLama.SetValue(temporaryString, dataBarangLama.Count + 1);
+    
+    temporaryString := '/' + IntToStr(dataBarangLama.Count) + '/nama';
+    fileJsonLama.SetValue(temporaryString, namaBarangBaru);
+
+    temporaryString := '/' + IntToStr(dataBarangLama.Count) + '/merk';
+    fileJsonLama.SetValue(temporaryString, merkBarangBaru);
+
+    temporaryString := '/' + IntToStr(dataBarangLama.Count) + '/stok';
+    fileJsonLama.SetValue(temporaryString, stokBarangBaru);
+
+    temporaryString := '/' + IntToStr(dataBarangLama.Count) + '/harga';
+    fileJsonLama.SetValue(temporaryString, hargaBarangBaru);
+  finally
+    writeln('Barang berhasil ditambahkan');
+
+    fileJsonLama.Free;
+    dataBarangLama.Free;
+  end;
 end;
 
 BEGIN
-  if not FileExists('dataBarang.json') then
-    CreateJSON('dataBarang.json');
+  if not FileExists('dataBarang.json') then begin
+    BuatJSON('dataBarang.json');
+  end;
 
   repeat
     ClrScr;
@@ -83,26 +171,33 @@ BEGIN
     writeln('2. Keluar dari program');
 
     write(sLineBreak, 'Pilih menu ke: ');
-    readln(PilihMenu);
+    readln(pilihMenu);
 
-    if (PilihMenu = 1) then begin
-        DataBarang := BacaJSON('dataBarang.json');
-        TampilkanSemuaBarang(DataBarang);
+    if (pilihMenu = 1) then begin
+      repeat
+          dataBarang := BacaJSON('dataBarang.json');
+          TampilkanSemuaBarang(dataBarang);
 
-        writeln('------ Pilih Menu ------');
-        writeln('1. Tambah data barang');
-        writeln('2. Edit data barang');
-        writeln('3. Hapus data barang');
+          writeln('------ Pilih Menu ------');
+          writeln('1. Tambah data barang');
+          writeln('2. Edit data barang');
+          writeln('3. Hapus data barang');
+          writeln('4. Kembali ke menu utama');
 
-        write('Masukkan pilihan: ');
-        readln(PilihMenuBarang);
+          write('Masukkan pilihan: ');
+          readln(pilihMenuBarang);
+
+          if (pilihMenuBarang = 1) then begin
+            TambahBarangBaru('dataBarang.json');
+          end;
+      until (pilihMenuBarang = 4)
     end
-    else if (PilihMenu = 2) then begin
+    else if (pilihMenu = 2) then begin
       writeln('Bye-bye');
-      KeluarProgram := True;
+      keluarProgram := True;
     end
     else
       writeln('Hello world');
     
-  until KeluarProgram = True;
+  until keluarProgram = True;
 END.
