@@ -167,6 +167,48 @@ begin
   end;
 end;
 
+// Mencari barang berdasarkan id
+procedure CariBarang();
+var
+  listDataBarang: TJSONData;
+  detailBarang: TJSONObject;
+  idBarang: integer;
+  pilihMenuDetail: integer;
+
+  i: integer;
+begin
+  write('Masukkan ID barang yang dicari: ');
+  readln(idBarang);
+
+  listDataBarang := BacaJSON('dataBarang.json');
+
+  for i := 0 to listDataBarang.Count - 1 do begin
+    detailBarang := listDataBarang.Items[i] as TJSONObject;
+
+    if (detailBarang.Integers['id'] = idBarang) then begin
+      ClrScr;
+      writeln('------ Detail barang ------');
+      writeln('Nama barang: ', detailBarang.Get('nama'));
+      writeln('Merk barang: ', detailBarang.Get('merk'));
+      writeln('Stok barang: ', detailBarang.Get('stok'));
+      writeln('Harga barang: ', detailBarang.Get('harga'), sLineBreak);
+      
+      writeln('------ Menu detail barang ------');
+      writeln('1. Edit data barang');
+      writeln('2. Hapus data barang');
+      writeln('3. Kembali ke menu utama');
+
+      write('Masukkan pilihan: ');
+      readln(pilihMenuDetail);
+
+      exit;
+    end;
+  end;
+
+  write('Barang tidak ditemukan (tekan keyboard untuk melanjutkan) ');
+  readkey;
+end;
+
 BEGIN
   if not FileExists('dataBarang.json') then begin
     BuatJSON('dataBarang.json');
@@ -191,15 +233,16 @@ BEGIN
           writeln('1. Tambah data barang');
           writeln('2. Edit data barang');
           writeln('3. Hapus data barang');
-          writeln('4. Kembali ke menu utama');
+          writeln('4. Cari data barang');
+          writeln('5. Kembali ke menu utama');
 
           write('Masukkan pilihan: ');
           readln(pilihMenuBarang);
 
-          if (pilihMenuBarang = 1) then begin
-            TambahBarangBaru('dataBarang.json');
-          end;
-      until (pilihMenuBarang = 4)
+          if (pilihMenuBarang = 1) then TambahBarangBaru('dataBarang.json')
+          else if (pilihMenuBarang = 4) then CariBarang();
+      
+      until (pilihMenuBarang = 5)
     end
     else if (pilihMenu = 2) then begin
       writeln('Bye-bye');
