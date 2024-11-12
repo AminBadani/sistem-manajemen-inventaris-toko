@@ -66,41 +66,43 @@ begin
 
   try
     writeln('------ Data semua barang ------');
-    for i := 0 to list_data_barang.Count - 1 do
-      begin
-        detailBarang := list_data_barang.Items[i];
-        barang := detailBarang as TJSONObject;
+    for i := 0 to list_data_barang.Count - 1 do begin
+      detailBarang := list_data_barang.Items[i];
+      barang := detailBarang as TJSONObject;
 
-        writeln('ID barang: ', barang.Get('id'));
-        writeln('Nama barang: ', barang.Get('nama'));
-        writeln('Merk barang: ', barang.Get('merk'));
-        writeln('Stok barang: ', barang.Get('stok'));
-        writeln('Harga barang: ', barang.Get('harga'), sLineBreak);
-      end;  
+      writeln('Nama barang: ', barang.Get('nama'));
+      writeln('Merk barang: ', barang.Get('merk'));
+      writeln('Stok barang: ', barang.Get('stok'));
+      writeln('Harga barang: ', barang.Get('harga'), sLineBreak);
+    end;  
   finally
     detailBarang.Free;
   end;
 end;
 
+// Menambah barang baru ke dalam file json
 procedure TambahBarangBaru(nama_file: string);
 var
+  // Variabel untuk mengambil dan menyimpan data lama
   fileJsonLama: TJSONConfig;
   dataBarangLama: TJSONData;
   barangLama: TJSONObject;
 
+  // Variabel untuk menampung input data barang baru oleh user
   namaBarangBaru: string;
   merkBarangBaru: string;
   stokBarangBaru: integer;
   hargaBarangBaru: longint;
 
-  temporaryString: string;
+  temporaryString: string; // Untuk menampung string sementara dari path json
   i: integer;
 
 begin
   ClrScr;
-  fileJsonLama := TJSONConfig.Create(nil);
+  fileJsonLama := TJSONConfig.Create(nil); // Membuat komponen TJSONConifg
 
-  writeln('------ Data semua barang ------');
+  // Membaca input pengguna
+  writeln('------ Tambah barang baru ------');
   write('Masukkan nama barang baru: ');
   readln(namaBarangBaru);
   write('Masukkan merk barang baru: ');
@@ -111,15 +113,20 @@ begin
   readln(hargaBarangBaru);
 
   try
+    // Konfigurasi file json dan nama file
     fileJsonLama.Formatted := True;
     fileJsonLama.Filename := nama_file;
 
+    // Membaca file json yang berisi data lama
     dataBarangLama := BacaJSON(nama_file);
 
+    // Menimpa isi dari file json lama dengan barang sebelumnya
     for i := 0 to dataBarangLama.Count - 1 do
       begin
+        // Membaca data barang lama berdasarkan yang ada di dalam file json
         barangLama := dataBarangLama.Items[i] as TJSONObject;
 
+        // Menimpa isi file lama dengan data barang sebelumnya
         temporaryString := '/' + IntToStr(i) + '/id';
         fileJsonLama.SetValue(temporaryString, barangLama.Integers['id']);
 
@@ -136,6 +143,7 @@ begin
         fileJsonLama.SetValue(temporaryString, barangLama.Integers['harga']);
       end;
 
+    // Memasukkan data barang baru pada file json
     temporaryString := '/' + IntToStr(dataBarangLama.Count) + '/id';
     fileJsonLama.SetValue(temporaryString, dataBarangLama.Count + 1);
     
@@ -151,7 +159,8 @@ begin
     temporaryString := '/' + IntToStr(dataBarangLama.Count) + '/harga';
     fileJsonLama.SetValue(temporaryString, hargaBarangBaru);
   finally
-    writeln('Barang berhasil ditambahkan');
+    write('Barang berhasil ditambahkan (tekan keyboard untuk melanjutkan) ');
+    readkey;
 
     fileJsonLama.Free;
     dataBarangLama.Free;
