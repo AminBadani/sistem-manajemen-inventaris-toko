@@ -12,5 +12,12 @@
     "merk" : "Punyaku",
     "stok" : 100,
     "harga" : 12500
+  },
+  "2" : {
+    "id" : 3,
+    "nama" : "Makanan enak",
+    "merk" : "Nyamanya",
+    "stok" : 10,
+    "harga" : 20000
   }
 }

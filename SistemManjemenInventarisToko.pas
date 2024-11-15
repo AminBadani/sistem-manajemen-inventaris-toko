@@ -70,6 +70,7 @@ begin
       detailBarang := list_data_barang.Items[i];
       barang := detailBarang as TJSONObject;
 
+      writeln('Nama barang: ', barang.Get('id'));
       writeln('Nama barang: ', barang.Get('nama'));
       writeln('Merk barang: ', barang.Get('merk'));
       writeln('Stok barang: ', barang.Get('stok'));
@@ -86,7 +87,6 @@ var
   // Variabel untuk mengambil dan menyimpan data lama
   fileJsonLama: TJSONConfig;
   dataBarangLama: TJSONData;
-  barangLama: TJSONObject;
 
   // Variabel untuk menampung input data barang baru oleh user
   namaBarangBaru: string;
@@ -95,8 +95,6 @@ var
   hargaBarangBaru: longint;
 
   temporaryString: string; // Untuk menampung string sementara dari path json
-  i: integer;
-
 begin
   ClrScr;
   fileJsonLama := TJSONConfig.Create(nil); // Membuat komponen TJSONConifg
@@ -120,29 +118,6 @@ begin
     // Membaca file json yang berisi data lama
     dataBarangLama := BacaJSON(nama_file);
 
-    // Menimpa isi dari file json lama dengan barang sebelumnya
-    for i := 0 to dataBarangLama.Count - 1 do
-      begin
-        // Membaca data barang lama berdasarkan yang ada di dalam file json
-        barangLama := dataBarangLama.Items[i] as TJSONObject;
-
-        // Menimpa isi file lama dengan data barang sebelumnya
-        temporaryString := '/' + IntToStr(i) + '/id';
-        fileJsonLama.SetValue(temporaryString, barangLama.Integers['id']);
-
-        temporaryString := '/' + IntToStr(i) + '/nama';
-        fileJsonLama.SetValue(temporaryString, barangLama.Get('nama', ''));
-
-        temporaryString := '/' + IntToStr(i) + '/merk';
-        fileJsonLama.SetValue(temporaryString, barangLama.Get('merk', ''));
-
-        temporaryString := '/' + IntToStr(i) + '/stok';
-        fileJsonLama.SetValue(temporaryString, barangLama.Integers['stok']);
-
-        temporaryString := '/' + IntToStr(i) + '/harga';
-        fileJsonLama.SetValue(temporaryString, barangLama.Integers['harga']);
-      end;
-
     // Memasukkan data barang baru pada file json
     temporaryString := '/' + IntToStr(dataBarangLama.Count) + '/id';
     fileJsonLama.SetValue(temporaryString, dataBarangLama.Count + 1);
@@ -164,6 +139,44 @@ begin
 
     fileJsonLama.Free;
     dataBarangLama.Free;
+  end;
+end;
+
+procedure HapusBarang(detail_barang: TJSONObject; nama_file: string);
+var
+  fileJsonLama: TJSONConfig;
+  dataBarang: TJSONData;
+  pathDataBarang: TJSONData;
+
+  yakinMenghapus: char;
+begin
+  write('Apakah anda yakin ingin menghapus ', detail_barang.Get('nama'), ' (Y/N) ');
+  readln(yakinMenghapus);
+
+  if (UpperCase(yakinMenghapus) <> 'Y') then begin
+    write('Hapus data dibatalkan (tekan keyboard untuk melanjutkan)');
+    readkey;
+    exit
+  end;
+
+  fileJsonLama := TJSONConfig.Create(nil);
+
+  try
+    fileJsonLama.Formatted := True;
+    fileJsonLama.Filename := nama_file;
+
+    dataBarang := BacaJSON(nama_file);
+    pathDataBarang := dataBarang.GetPath(IntToStr(detail_barang.Integers['id'] - 1));
+
+    if (pathDataBarang <> nil) then begin
+      WriteLn(detail_barang.Integers['id'] - 1, ' '); readkey;
+      fileJsonLama.Destroy();
+    end;
+  finally
+    writeln('Barang ', detail_barang.Get('nama'), ' berhasil dihapus (tekan keyboard untuk melanjutkan)');
+    readkey;
+
+    fileJsonLama.Free;
   end;
 end;
 
@@ -200,6 +213,10 @@ begin
 
       write('Masukkan pilihan: ');
       readln(pilihMenuDetail);
+
+      if (pilihMenuDetail = 2) then begin
+        HapusBarang(detailBarang, 'dataBarang.json');
+      end;
 
       exit;
     end;
