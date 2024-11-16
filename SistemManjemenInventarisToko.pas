@@ -84,7 +84,7 @@ end;
 // Menambah barang baru ke dalam file json
 procedure TambahBarangBaru(nama_file: string);
 var
-  // Variabel untuk mengambil dan menyimpan data lama
+  // Variabel untuk mengambil data lama dan menyimpan data baru
   fileJsonLama: TJSONConfig;
   dataBarangLama: TJSONData;
 
@@ -142,6 +142,62 @@ begin
   end;
 end;
 
+procedure EditBarang(detail_barang: TJSONObject; nama_file: string);
+var
+  fileJsonLama: TJSONConfig;
+  pilihMenuEdit: integer; 
+
+  temporaryString: string;
+  namaBarangBaru: string;
+  merkBarangBaru: string;
+  stokBarangBaru: integer;
+  hargaBarangBaru: longint;
+begin
+  write('Pilih property yang ingin di edit (1 (nama), 2 (merk), 3 (stok), 4(harga)): ');
+  readln(pilihMenuEdit);
+  
+  fileJsonLama := TJSONConfig.Create(nil);
+
+  try
+    fileJsonLama.Formatted := True;
+    fileJsonLama.Filename := nama_file;
+
+    if (pilihMenuEdit = 1) then begin
+      write('Masukkan nama barang baru: ');
+      readln(namaBarangBaru);
+
+      temporaryString := '/' + IntToStr(detail_barang.Integers['id'] - 1) + '/nama';
+      fileJsonLama.SetValue(temporaryString, namaBarangBaru);
+
+    end else if (pilihMenuEdit = 2) then begin
+      write('Masukkan merk barang baru: ');
+      readln(merkBarangBaru);
+
+      temporaryString := '/' + IntToStr(detail_barang.Integers['id'] - 1) + '/merk';
+      fileJsonLama.SetValue(temporaryString, merkBarangBaru);
+
+    end else if (pilihMenuEdit = 3) then begin
+      write('Masukkan harga barang baru: ');
+      readln(stokBarangBaru);
+
+      temporaryString := '/' + IntToStr(detail_barang.Integers['id'] - 1) + '/stok';
+      fileJsonLama.SetValue(temporaryString, stokBarangBaru);
+
+    end else if (pilihMenuEdit = 4) then begin
+      write('Masukkan harga barang baru: ');
+      readln(hargaBarangBaru);
+
+      temporaryString := '/' + IntToStr(detail_barang.Integers['id'] - 1) + '/harga';
+      fileJsonLama.SetValue(temporaryString, hargaBarangBaru);
+
+    end
+  finally
+    write('Barang ', detail_barang.Get('nama'), ' berhasil di edit (tekan keyboard untuk melanjutkan) ');
+    readkey;
+    fileJsonLama.Free;
+  end;
+end;
+
 procedure HapusBarang(detail_barang: TJSONObject; nama_file: string);
 var
   fileJsonLama: TJSONConfig;
@@ -154,7 +210,7 @@ begin
   readln(yakinMenghapus);
 
   if (UpperCase(yakinMenghapus) <> 'Y') then begin
-    write('Hapus data dibatalkan (tekan keyboard untuk melanjutkan)');
+    write('Hapus data dibatalkan (tekan keyboard untuk melanjutkan) ');
     readkey;
     exit
   end;
@@ -214,7 +270,9 @@ begin
       write('Masukkan pilihan: ');
       readln(pilihMenuDetail);
 
-      if (pilihMenuDetail = 2) then begin
+      if (pilihMenuDetail = 1) then begin
+        EditBarang(detailBarang, 'dataBarang.json');
+      end else if (pilihMenuDetail = 2) then begin
         HapusBarang(detailBarang, 'dataBarang.json');
       end;
 
