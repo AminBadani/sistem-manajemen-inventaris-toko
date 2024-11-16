@@ -70,7 +70,7 @@ begin
       detailBarang := list_data_barang.Items[i];
       barang := detailBarang as TJSONObject;
 
-      writeln('Nama barang: ', barang.Get('id'));
+      writeln('ID barang: ', barang.Get('id'));
       writeln('Nama barang: ', barang.Get('nama'));
       writeln('Merk barang: ', barang.Get('merk'));
       writeln('Stok barang: ', barang.Get('stok'));
@@ -169,11 +169,10 @@ begin
     pathDataBarang := dataBarang.GetPath(IntToStr(detail_barang.Integers['id'] - 1));
 
     if (pathDataBarang <> nil) then begin
-      WriteLn(detail_barang.Integers['id'] - 1, ' '); readkey;
-      fileJsonLama.Destroy();
+      fileJsonLama.DeletePath(IntToStr(detail_barang.Integers['id'] - 1));
     end;
   finally
-    writeln('Barang ', detail_barang.Get('nama'), ' berhasil dihapus (tekan keyboard untuk melanjutkan)');
+    write('Barang ', detail_barang.Get('nama'), ' berhasil dihapus (tekan keyboard untuk melanjutkan) ');
     readkey;
 
     fileJsonLama.Free;
@@ -201,6 +200,7 @@ begin
     if (detailBarang.Integers['id'] = idBarang) then begin
       ClrScr;
       writeln('------ Detail barang ------');
+      writeln('ID barang: ', detailBarang.Get('id'));
       writeln('Nama barang: ', detailBarang.Get('nama'));
       writeln('Merk barang: ', detailBarang.Get('merk'));
       writeln('Stok barang: ', detailBarang.Get('stok'));
