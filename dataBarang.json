@@ -1,14 +1,23 @@
-[
-  {
-    "id": 1,
-    "nama": "Sabun mandi Lifebuoy",
-    "stok": 10,
-    "harga": 10000
+{
+  "0" : {
+    "id" : 1,
+    "nama" : "Sabun cuci",
+    "merk" : "Lifebuoy",
+    "stok" : 10,
+    "harga" : 10000
   },
-  {
-    "id": 2,
-    "nama": "Sikat gigi Kodomo",
-    "stok": 20,
-    "harga": 15000
+  "1" : {
+    "id" : 2,
+    "nama" : "Sapu lidi",
+    "merk" : "Punyaku",
+    "stok" : 100,
+    "harga" : 12500
+  },
+  "2" : {
+    "id" : 3,
+    "nama" : "Snack enak suka",
+    "merk" : "Nyamanya",
+    "stok" : 10,
+    "harga" : 20000
   }
-]
+}
