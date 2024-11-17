@@ -254,33 +254,73 @@ begin
     detailBarang := listDataBarang.Items[i] as TJSONObject;
 
     if (detailBarang.Integers['id'] = idBarang) then begin
-      ClrScr;
-      writeln('------ Detail barang ------');
+      repeat
+        ClrScr;
+
+        writeln('------ Detail barang ------');
+        writeln('ID barang: ', detailBarang.Get('id'));
+        writeln('Nama barang: ', detailBarang.Get('nama'));
+        writeln('Merk barang: ', detailBarang.Get('merk'));
+        writeln('Stok barang: ', detailBarang.Get('stok'));
+        writeln('Harga barang: ', detailBarang.Get('harga'), sLineBreak);
+        
+        writeln('------ Menu detail barang ------');
+        writeln('1. Edit data barang');
+        writeln('2. Hapus data barang');
+        writeln('3. Kembali ke menu utama');
+
+        write('Masukkan pilihan: ');
+        readln(pilihMenuDetail);
+
+        if (pilihMenuDetail = 1) then begin
+          EditBarang(detailBarang, 'dataBarang.json');
+        end else if (pilihMenuDetail = 2) then begin
+          HapusBarang(detailBarang, 'dataBarang.json');
+        end else if (pilihMenuDetail = 3) then begin
+          exit;
+        end else begin
+          writeln('Pilihan tidak ada');
+          readkey;
+        end;
+      until (pilihMenuDetail = 3)
+    end;
+  end;
+
+  write('Barang tidak ditemukan (tekan keyboard untuk melanjutkan) ');
+  readkey;
+end;
+
+procedure CariBarangKeyword();
+var 
+  listDataBarang: TJSONData;
+  detailBarang: TJSONObject;
+  kataKunci: string;
+
+  i: integer;
+begin
+  write('Masukkan kata kunci pencarian (nama atau merk): ');
+  readln(kataKunci);
+
+  ClrScr;
+  writeln('------ Cari barang ------');
+  
+  kataKunci := LowerCase(kataKunci);
+  listDataBarang := BacaJSON('dataBarang.json');
+
+  for i := 0 to listDataBarang.Count - 1 do begin
+
+    detailBarang := listDataBarang.Items[i] as TJSONObject;
+
+    if (( Pos(kataKunci, LowerCase(detailBarang.Get('nama'))) > 0 ) or ( Pos(kataKunci, LowerCase(detailBarang.Get('merk'))) > 0 )) then begin
       writeln('ID barang: ', detailBarang.Get('id'));
       writeln('Nama barang: ', detailBarang.Get('nama'));
       writeln('Merk barang: ', detailBarang.Get('merk'));
       writeln('Stok barang: ', detailBarang.Get('stok'));
       writeln('Harga barang: ', detailBarang.Get('harga'), sLineBreak);
-      
-      writeln('------ Menu detail barang ------');
-      writeln('1. Edit data barang');
-      writeln('2. Hapus data barang');
-      writeln('3. Kembali ke menu utama');
-
-      write('Masukkan pilihan: ');
-      readln(pilihMenuDetail);
-
-      if (pilihMenuDetail = 1) then begin
-        EditBarang(detailBarang, 'dataBarang.json');
-      end else if (pilihMenuDetail = 2) then begin
-        HapusBarang(detailBarang, 'dataBarang.json');
-      end;
-
-      exit;
     end;
   end;
 
-  write('Barang tidak ditemukan (tekan keyboard untuk melanjutkan) ');
+  listDataBarang.Free;
   readkey;
 end;
 
@@ -315,7 +355,7 @@ BEGIN
           readln(pilihMenuBarang);
 
           if (pilihMenuBarang = 1) then TambahBarangBaru('dataBarang.json')
-          else if (pilihMenuBarang = 4) then CariBarang();
+          else if (pilihMenuBarang = 4) then CariBarangKeyword();
       
       until (pilihMenuBarang = 5)
     end
