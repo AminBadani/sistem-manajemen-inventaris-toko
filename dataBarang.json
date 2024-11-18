@@ -1,19 +1,12 @@
 {
-  "0" : {
+  "1" : {
     "id" : 1,
     "nama" : "Sabun cuci",
     "merk" : "Lifebuoy",
     "stok" : 10,
     "harga" : 10000
   },
-  "1" : {
-    "id" : 2,
-    "nama" : "Sapu lidi",
-    "merk" : "Punyaku",
-    "stok" : 100,
-    "harga" : 12500
-  },
-  "2" : {
+  "3" : {
     "id" : 3,
     "nama" : "Makan makan",
     "merk" : "Makan enak",

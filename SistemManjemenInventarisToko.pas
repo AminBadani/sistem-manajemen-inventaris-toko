@@ -142,31 +142,40 @@ begin
   end;
 end;
 
+// Mengedit salah satu atribut barang 
 procedure EditBarang(detail_barang: TJSONObject; nama_file: string);
 var
-  fileJsonLama: TJSONConfig;
-  pilihMenuEdit: integer; 
+  fileJsonLama: TJSONConfig; // Menampung file json yang diakses
+  pilihMenuEdit: integer;  // Menampung pilihan edit berdasarkan property atau atribut barang
 
-  temporaryString: string;
-  namaBarangBaru: string;
+  temporaryString: string; // Menampung path dari json yang di edit
+
+  // Variabel untuk menampung isi propery yang baru
+  namaBarangBaru: string; 
   merkBarangBaru: string;
   stokBarangBaru: integer;
   hargaBarangBaru: longint;
 begin
+
+  //  Input pilihan properti yang ingin diedit
   write('Pilih property yang ingin di edit (1 = nama, 2 = merk, 3 = stok, 4 = harga): ');
   readln(pilihMenuEdit);
   
   fileJsonLama := TJSONConfig.Create(nil);
 
   try
+
+    // Konfigurasi file json yang diakses
     fileJsonLama.Formatted := True;
     fileJsonLama.Filename := nama_file;
 
+    // Menggunakan pengkondisian untuk memilih propery yang diedit
     if (pilihMenuEdit = 1) then begin
       write('Masukkan nama barang baru: ');
       readln(namaBarangBaru);
 
-      temporaryString := '/' + IntToStr(detail_barang.Integers['id'] - 1) + '/nama';
+      // Mengupdate isi dari property nama dengan nama baru
+      temporaryString := '/' + IntToStr(detail_barang.Integers['id']) + '/nama';
       fileJsonLama.SetValue(temporaryString, namaBarangBaru);
       write('Nama barang berhasil di edit (tekan keyboard untuk melanjutkan) ');
       readkey;
@@ -175,7 +184,8 @@ begin
       write('Masukkan merk barang baru: ');
       readln(merkBarangBaru);
 
-      temporaryString := '/' + IntToStr(detail_barang.Integers['id'] - 1) + '/merk';
+      // Mengupdate isi dari property merk dengan merk baru
+      temporaryString := '/' + IntToStr(detail_barang.Integers['id']) + '/merk';
       fileJsonLama.SetValue(temporaryString, merkBarangBaru);
       write('Merk barang berhasil di edit (tekan keyboard untuk melanjutkan) ');
       readkey;
@@ -184,7 +194,8 @@ begin
       write('Masukkan harga barang baru: ');
       readln(stokBarangBaru);
 
-      temporaryString := '/' + IntToStr(detail_barang.Integers['id'] - 1) + '/stok';
+      // Mengupdate isi dari property stok dengan stok baru
+      temporaryString := '/' + IntToStr(detail_barang.Integers['id']) + '/stok';
       fileJsonLama.SetValue(temporaryString, stokBarangBaru);
       write('Stok barang berhasil di edit (tekan keyboard untuk melanjutkan) ');
       readkey;
@@ -193,7 +204,8 @@ begin
       write('Masukkan harga barang baru: ');
       readln(hargaBarangBaru);
 
-      temporaryString := '/' + IntToStr(detail_barang.Integers['id'] - 1) + '/harga';
+      // Mengupdate isi dari property harga dengan harga baru
+      temporaryString := '/' + IntToStr(detail_barang.Integers['id']) + '/harga';
       fileJsonLama.SetValue(temporaryString, hargaBarangBaru);
       write('Harga barang berhasil di edit (tekan keyboard untuk melanjutkan) ');
       readkey;
@@ -202,20 +214,25 @@ begin
       write('Pilihan tidak ada');
       readkey;
       exit;
+
     end;
   finally
     fileJsonLama.Free;
   end;
 end;
 
+// Menghapus data barang berdasarkan id
 procedure HapusBarang(detail_barang: TJSONObject; nama_file: string);
 var
+  // Mengambil file json lama
   fileJsonLama: TJSONConfig;
   dataBarang: TJSONData;
   pathDataBarang: TJSONData;
 
-  yakinMenghapus: char;
-begin
+  yakinMenghapus: char; // Konfirmasi penghapusan
+begin 
+
+  // Konfirmasi yakin ingin menghapus
   write('Apakah anda yakin ingin menghapus barang: ', detail_barang.Get('nama'), ' (Y/N) ');
   readln(yakinMenghapus);
 
@@ -231,11 +248,14 @@ begin
     fileJsonLama.Formatted := True;
     fileJsonLama.Filename := nama_file;
 
+    // Membaca semua data yang ada didalam file json
     dataBarang := BacaJSON(nama_file);
-    pathDataBarang := dataBarang.GetPath(IntToStr(detail_barang.Integers['id'] - 1));
+    // Mengambil path berdasarkan id
+    pathDataBarang := dataBarang.GetPath(IntToStr(detail_barang.Integers['id']));
 
+    // Hapus path pada file json jika ditemukan
     if (pathDataBarang <> nil) then begin
-      fileJsonLama.DeletePath(IntToStr(detail_barang.Integers['id'] - 1));
+      fileJsonLama.DeletePath(IntToStr(detail_barang.Integers['id']));
     end;
   finally
     write('Barang ', detail_barang.Get('nama'), ' berhasil dihapus (tekan keyboard untuk melanjutkan) ');
@@ -287,6 +307,7 @@ begin
             EditBarang(detailBarang, 'dataBarang.json');
           end else if (pilihMenuDetail = 2) then begin
             HapusBarang(detailBarang, 'dataBarang.json');
+            exit
           end else if (pilihMenuDetail = 3) then begin
             exit;
           end else begin
