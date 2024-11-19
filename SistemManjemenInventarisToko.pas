@@ -265,61 +265,71 @@ begin
   end;
 end;
 
+function DetailBarangRekursif(nomor_item: integer; list_data_barang: TJSONData; id_barang: integer): boolean;
+var 
+  detailBarang: TJSONObject;
+  pilihMenuDetail: integer;
+begin
+  if (nomor_item < 0) then exit(False);
+
+  detailBarang := list_data_barang.Items[nomor_item] as TJSONObject;
+
+  if (detailBarang.Integers['id'] = id_barang) then begin
+    repeat
+      ClrScr;
+      detailBarang := list_data_barang.Items[nomor_item] as TJSONObject;
+
+      writeln('------ Detail barang ------');
+      writeln('ID barang: ', detailBarang.Get('id'));
+      writeln('Nama barang: ', detailBarang.Get('nama'));
+      writeln('Merk barang: ', detailBarang.Get('merk'));
+      writeln('Stok barang: ', detailBarang.Get('stok'));
+      writeln('Harga barang: ', detailBarang.Get('harga'), sLineBreak);
+      
+      writeln('------ Menu detail barang ------');
+      writeln('1. Edit data barang');
+      writeln('2. Hapus data barang');
+      writeln('3. Kembali ke list semua barang');
+
+      write('Masukkan pilihan: ');
+      readln(pilihMenuDetail);
+
+      if (pilihMenuDetail = 1) then begin
+        EditBarang(detailBarang, 'dataBarang.json');
+      end else if (pilihMenuDetail = 2) then begin
+        HapusBarang(detailBarang, 'dataBarang.json');
+        exit(False);
+      end else if (pilihMenuDetail = 3) then begin
+        exit(False);
+      end else begin
+        writeln('Pilihan tidak ada');
+        readkey;
+      end;
+    until (pilihMenuDetail = 3);
+  end;
+
+  DetailBarangRekursif(nomor_item - 1, list_data_barang, id_barang);
+end;
+
 // Mencari barang berdasarkan id
-procedure DetailBarang();
+procedure CariBarangId();
 var
   listDataBarang: TJSONData;
-  detailBarang: TJSONObject;
   idBarang: integer;
-  pilihMenuDetail: integer;
 
-  i: integer;
+  barangDitemukan: boolean = false;
 begin
   write('Masukkan ID barang: ');
   readln(idBarang);
 
-  repeat
-    listDataBarang := BacaJSON('dataBarang.json');
+  listDataBarang := BacaJSON('dataBarang.json');
 
-    for i := 0 to listDataBarang.Count - 1 do begin
-      detailBarang := listDataBarang.Items[i] as TJSONObject;
+  barangDitemukan := DetailBarangRekursif(listDataBarang.Count - 1, listDataBarang, idBarang);
 
-      if (detailBarang.Integers['id'] = idBarang) then begin
-          ClrScr;
-          detailBarang := listDataBarang.Items[i] as TJSONObject;
-
-          writeln('------ Detail barang ------');
-          writeln('ID barang: ', detailBarang.Get('id'));
-          writeln('Nama barang: ', detailBarang.Get('nama'));
-          writeln('Merk barang: ', detailBarang.Get('merk'));
-          writeln('Stok barang: ', detailBarang.Get('stok'));
-          writeln('Harga barang: ', detailBarang.Get('harga'), sLineBreak);
-          
-          writeln('------ Menu detail barang ------');
-          writeln('1. Edit data barang');
-          writeln('2. Hapus data barang');
-          writeln('3. Kembali ke list semua barang');
-
-          write('Masukkan pilihan: ');
-          readln(pilihMenuDetail);
-
-          if (pilihMenuDetail = 1) then begin
-            EditBarang(detailBarang, 'dataBarang.json');
-          end else if (pilihMenuDetail = 2) then begin
-            HapusBarang(detailBarang, 'dataBarang.json');
-            exit
-          end else if (pilihMenuDetail = 3) then begin
-            exit;
-          end else begin
-            writeln('Pilihan tidak ada');
-            readkey;
-          end;
-      end;
-    end;
-  until (pilihMenuDetail = 3);
-
-  write('Barang tidak ditemukan (tekan keyboard untuk melanjutkan) ');
-  readkey;
+  if (barangDitemukan = false) then begin
+    write('Barang tidak ditemukan (tekan keyboard untuk melanjutkan) ');
+    readkey;
+  end;
 end;
 
 procedure CariBarangKeyword();
@@ -360,7 +370,7 @@ BEGIN
   if not FileExists('dataBarang.json') then begin
     BuatJSON('dataBarang.json');
   end;
-
+  
   repeat
     ClrScr;
 
@@ -387,7 +397,7 @@ BEGIN
 
           if (pilihMenuBarang = 1) then TambahBarangBaru('dataBarang.json')
           else if (pilihMenuBarang = 2) then CariBarangKeyword()
-          else if (pilihMenuBarang = 3) then DetailBarang()
+          else if (pilihMenuBarang = 3) then CariBarangId()
       until (pilihMenuBarang = 4)
 
     end else if (pilihMenu = 2) then begin
