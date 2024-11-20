@@ -265,57 +265,76 @@ begin
   end;
 end;
 
-function DetailBarangRekursif(nomor_item: integer; list_data_barang: TJSONData; id_barang: integer): boolean;
+// Menampilkan detail barang
+function DetailBarangRekursif(index_barang: integer; list_data_barang: TJSONData; id_barang: integer): boolean;
 var 
-  detailBarang: TJSONObject;
-  pilihMenuDetail: integer;
+  detailBarang: TJSONObject; //  Untuk menampung detail barang
+  pilihMenuDetail: integer; // Pilihan menu terhadap barang yang ditemukan
 begin
-  if (nomor_item < 0) then exit(False);
+  // Jika index_barang yang dicari kurang dari 0
+  // Maka hentikan algoritma rekursifnya
+  if (index_barang < 0) then exit(False)
+  else begin
+    
+    // Memasukkan detail barang berdasarkan index barang
+    detailBarang := list_data_barang.Items[index_barang] as TJSONObject;
 
-  detailBarang := list_data_barang.Items[nomor_item] as TJSONObject;
+    // Jika id dari detailBarang sama dengan id_barang yang dicari
+    // Maka tampilkan detailnya dan pilihan menunya
+    if (detailBarang.Integers['id'] = id_barang) then begin
+      repeat
+        ClrScr;
 
-  if (detailBarang.Integers['id'] = id_barang) then begin
-    repeat
-      ClrScr;
-      detailBarang := list_data_barang.Items[nomor_item] as TJSONObject;
+        // Memanggil kembali detail barang untuk mengupdate tampilan barang
+        detailBarang := list_data_barang.Items[index_barang] as TJSONObject;
 
-      writeln('------ Detail barang ------');
-      writeln('ID barang: ', detailBarang.Get('id'));
-      writeln('Nama barang: ', detailBarang.Get('nama'));
-      writeln('Merk barang: ', detailBarang.Get('merk'));
-      writeln('Stok barang: ', detailBarang.Get('stok'));
-      writeln('Harga barang: ', detailBarang.Get('harga'), sLineBreak);
-      
-      writeln('------ Menu detail barang ------');
-      writeln('1. Edit data barang');
-      writeln('2. Hapus data barang');
-      writeln('3. Kembali ke list semua barang');
+        writeln('------ Detail barang ------');
+        writeln('ID barang: ', detailBarang.Get('id'));
+        writeln('Nama barang: ', detailBarang.Get('nama'));
+        writeln('Merk barang: ', detailBarang.Get('merk'));
+        writeln('Stok barang: ', detailBarang.Get('stok'));
+        writeln('Harga barang: ', detailBarang.Get('harga'), sLineBreak);
+        
+        writeln('------ Menu detail barang ------');
+        writeln('1. Edit data barang');
+        writeln('2. Hapus data barang');
+        writeln('3. Kembali ke list semua barang');
 
-      write('Masukkan pilihan: ');
-      readln(pilihMenuDetail);
+        write('Masukkan pilihan: ');
+        readln(pilihMenuDetail);
 
-      if (pilihMenuDetail = 1) then begin
-        EditBarang(detailBarang, 'dataBarang.json');
-      end else if (pilihMenuDetail = 2) then begin
-        HapusBarang(detailBarang, 'dataBarang.json');
-        exit(False);
-      end else if (pilihMenuDetail = 3) then begin
-        exit(False);
-      end else begin
-        writeln('Pilihan tidak ada');
-        readkey;
-      end;
-    until (pilihMenuDetail = 3);
+        // Panggil prosedur yang sesuai dengan pilihanMenuDetail
+        if (pilihMenuDetail = 1) then begin
+          EditBarang(detailBarang, 'dataBarang.json');
+
+        end else if (pilihMenuDetail = 2) then begin
+          HapusBarang(detailBarang, 'dataBarang.json');
+          exit(False);
+
+        end else if (pilihMenuDetail = 3) then begin
+          exit(False);
+          
+        end else begin
+          writeln('Pilihan tidak ada');
+          readkey;
+
+        end;
+
+      // Keluar dari menuDetailBarang jika pilihMenuDetailnya sama dengan 3
+      until (pilihMenuDetail = 3);
+    end;
+
+    // Panggil kembali DetailBarangRekursif sebanyak jumlah barang yang ada di dalam file JSON
+    DetailBarangRekursif(index_barang- 1, list_data_barang, id_barang);
+
   end;
-
-  DetailBarangRekursif(nomor_item - 1, list_data_barang, id_barang);
 end;
 
 // Mencari barang berdasarkan id
 procedure CariBarangId();
 var
-  listDataBarang: TJSONData;
-  idBarang: integer;
+  listDataBarang: TJSONData; // Untuk menampung isi dari file JSON
+  idBarang: integer; // Menampung input id barang dari pengguna
 
   barangDitemukan: boolean = false;
 begin
@@ -326,17 +345,21 @@ begin
 
   barangDitemukan := DetailBarangRekursif(listDataBarang.Count - 1, listDataBarang, idBarang);
 
+  // Jika barang tidak ditemukan, maka tampilkan pesan error
   if (barangDitemukan = false) then begin
     write('Barang tidak ditemukan (tekan keyboard untuk melanjutkan) ');
     readkey;
   end;
 end;
 
+// Rekursif cari barang keyword
+
+// Mencari beberapa barang berdasarkan kata kunci
 procedure CariBarangKeyword();
 var 
-  listDataBarang: TJSONData;
-  detailBarang: TJSONObject;
-  kataKunci: string;
+  listDataBarang: TJSONData; // Untuk menampung isi dari file JSON
+  detailBarang: TJSONObject;  // Untuk menampung 1 barang
+  kataKunci: string; // Untuk menampung input kata kunci yang di cari
 
   i: integer;
 begin
