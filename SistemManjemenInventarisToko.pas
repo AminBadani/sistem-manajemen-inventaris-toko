@@ -15,18 +15,24 @@ procedure BuatJSON(nama_file: string);
 var
   fileJsonBaru: TJSONConfig; // Untuk membuat file json
 begin
+  // Membuat komponen TJSONConfig 
   fileJsonBaru := TJSONConfig.Create(nil);
 
   try
+    // Konfigurasi file JSON
     fileJsonBaru.Formatted := True;
     fileJsonBaru.Filename := nama_file;
 
+    // Memasukkan data barang dummy sebagai nilai awal
     fileJsonBaru.SetValue('/0/id', 1);
     fileJsonBaru.SetValue('/0/nama', 'Sabun cuci');
     fileJsonBaru.SetValue('/0/merk', 'Lifebuoy');
     fileJsonBaru.SetValue('/0/stok', 20);
     fileJsonBaru.SetValue('/0/harga', 10000);
   finally
+
+    // Membebaskan memori yang digunakan oleh varibel fileJSONBaru
+    // Untuk menghindari memory leak
     fileJsonBaru.Free;
   end;
 end;
@@ -39,19 +45,27 @@ var
   isiFile: TMemoryStream; 
   isiFileJSON: TJSONData; // Untuk menyimpan isi dari file dalam bentuk json
 begin
+  // Menyiapkan Memory Stream
   isiFile := TMemoryStream.Create;
   try
     try
+      // Membaca data mentah dari file json
       isiFile.loadFromFile(nama_file);
+      // Memasukkan isi file dalam bentuk format json ke dalam isiFileJSON
       isiFileJSON := GetJSON(isiFile);
+
     except
-      on E:Exception do
-        writeln('File ', nama_file, ' tidak ditemukan');
+      // Menampilkan pesan error jika file tidak ditemukan
+      writeln('File ', nama_file, ' tidak ditemukan');
+
     end;
   finally
+
+    // Membebaskan memori yang digunakan untuk variabel isiFile
     isiFile.Free;
   end;
 
+  // Mengembalikan isi file JSON sebagai nilai output
   exit(isiFileJSON);
 end;
 
@@ -66,17 +80,25 @@ begin
 
   try
     writeln('------ Data semua barang ------');
+
+    // Perulangan untuk membaca satu persatu data barang yang ada di dalam file json
     for i := 0 to list_data_barang.Count - 1 do begin
+
+      // Masukkan 1 buah data barang ke dalam detail barang
+      // Diambil berdasarkan index barangnya
       detailBarang := list_data_barang.Items[i];
       barang := detailBarang as TJSONObject;
 
+      // Menampilkan atribut pada data barang yang diambil
       writeln('ID barang: ', barang.Get('id'));
       writeln('Nama barang: ', barang.Get('nama'));
       writeln('Merk barang: ', barang.Get('merk'));
       writeln('Stok barang: ', barang.Get('stok'));
       writeln('Harga barang: ', barang.Get('harga'), sLineBreak);
     end;  
+
   finally
+    // Melepaskan memory yang digunakan pada variabel detailBarang
     detailBarang.Free;
   end;
 end;
@@ -118,7 +140,8 @@ begin
     // Membaca file json yang berisi data lama
     dataBarangLama := BacaJSON(nama_file);
 
-    // Memasukkan data barang baru pada file json
+    // Memasukkan data barang baru pada file json 
+    // Berdasarkan index yang baru dan atributnya masing-masing
     temporaryString := '/' + IntToStr(dataBarangLama.Count) + '/id';
     fileJsonLama.SetValue(temporaryString, dataBarangLama.Count + 1);
     
@@ -137,6 +160,7 @@ begin
     write('Barang berhasil ditambahkan (tekan keyboard untuk melanjutkan) ');
     readkey;
 
+    // Bebaskan memory yang digunakna pada variabel fileJSONLama dan dataBarangLama
     fileJsonLama.Free;
     dataBarangLama.Free;
   end;
@@ -353,7 +377,7 @@ begin
 end;
 
 // List barang berdasarkan keyword
-procedure ListBarangRekursif(index_barang: integer; list_data_barang: TJSONData; kata_kunci: string);
+procedure ListBarangKeywordRekursif(index_barang: integer; list_data_barang: TJSONData; kata_kunci: string);
 var 
   detailBarang: TJSONObject; // Untuk menampung sebuah barang dari list_data_barang
 begin
@@ -376,8 +400,8 @@ begin
       writeln('Harga barang: ', detailBarang.Get('harga'), sLineBreak);
     end;
 
-    // Panggil kembali ListBarangRekursif
-    ListBarangRekursif(index_barang - 1, list_data_barang, kata_kunci);
+    // Panggil kembali ListBarangKeywordRekursif
+    ListBarangKeywordRekursif(index_barang - 1, list_data_barang, kata_kunci);
   end;
 
 end;
@@ -400,7 +424,7 @@ begin
   listDataBarang := BacaJSON('dataBarang.json');
 
   // Memanggil procedure rekursif
-  ListBarangRekursif(listDataBarang.Count - 1, listDataBarang, kataKunci);
+  ListBarangKeywordRekursif(listDataBarang.Count - 1, listDataBarang, kataKunci);
 
   listDataBarang.Free;
   readkey;
