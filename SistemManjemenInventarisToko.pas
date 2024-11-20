@@ -352,16 +352,41 @@ begin
   end;
 end;
 
-// Rekursif cari barang keyword
+// List barang berdasarkan keyword
+procedure ListBarangRekursif(index_barang: integer; list_data_barang: TJSONData; kata_kunci: string);
+var 
+  detailBarang: TJSONObject; // Untuk menampung sebuah barang dari list_data_barang
+begin
+
+  // Hentikan rekursif jika index_barang kurang dari 0
+  if (index_barang < 0) then exit
+
+  else begin
+
+    // Masukkan barang berdasarkan indexnya ke dalam detailBarang
+    detailBarang := list_data_barang.Items[index_barang] as TJSONObject;
+
+    // Jika nama atau merk barang mengandung kata kunci
+    // Maka tampilkan detail barangnya
+    if (( Pos(kata_kunci, LowerCase(detailBarang.Get('nama'))) > 0 ) or ( Pos(kata_kunci, LowerCase(detailBarang.Get('merk'))) > 0 )) then begin
+      writeln('ID barang: ', detailBarang.Get('id'));
+      writeln('Nama barang: ', detailBarang.Get('nama'));
+      writeln('Merk barang: ', detailBarang.Get('merk'));
+      writeln('Stok barang: ', detailBarang.Get('stok'));
+      writeln('Harga barang: ', detailBarang.Get('harga'), sLineBreak);
+    end;
+
+    // Panggil kembali ListBarangRekursif
+    ListBarangRekursif(index_barang - 1, list_data_barang, kata_kunci);
+  end;
+
+end;
 
 // Mencari beberapa barang berdasarkan kata kunci
 procedure CariBarangKeyword();
 var 
   listDataBarang: TJSONData; // Untuk menampung isi dari file JSON
-  detailBarang: TJSONObject;  // Untuk menampung 1 barang
   kataKunci: string; // Untuk menampung input kata kunci yang di cari
-
-  i: integer;
 begin
   write('Masukkan kata kunci pencarian (nama atau merk): ');
   readln(kataKunci);
@@ -369,27 +394,21 @@ begin
   ClrScr;
   writeln('------ Cari barang ------');
   
+  // Membuat kata kunci menjadi huruf kecil semua
   kataKunci := LowerCase(kataKunci);
+  // Membaca isi dari dataBarang.json
   listDataBarang := BacaJSON('dataBarang.json');
 
-  for i := 0 to listDataBarang.Count - 1 do begin
-
-    detailBarang := listDataBarang.Items[i] as TJSONObject;
-
-    if (( Pos(kataKunci, LowerCase(detailBarang.Get('nama'))) > 0 ) or ( Pos(kataKunci, LowerCase(detailBarang.Get('merk'))) > 0 )) then begin
-      writeln('ID barang: ', detailBarang.Get('id'));
-      writeln('Nama barang: ', detailBarang.Get('nama'));
-      writeln('Merk barang: ', detailBarang.Get('merk'));
-      writeln('Stok barang: ', detailBarang.Get('stok'));
-      writeln('Harga barang: ', detailBarang.Get('harga'), sLineBreak);
-    end;
-  end;
+  // Memanggil procedure rekursif
+  ListBarangRekursif(listDataBarang.Count - 1, listDataBarang, kataKunci);
 
   listDataBarang.Free;
   readkey;
 end;
 
 BEGIN
+  readkey;
+
   if not FileExists('dataBarang.json') then begin
     BuatJSON('dataBarang.json');
   end;
