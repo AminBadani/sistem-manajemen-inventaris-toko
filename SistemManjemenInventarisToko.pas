@@ -123,14 +123,44 @@ begin
 
   // Membaca input pengguna
   writeln('------ Tambah barang baru ------');
+  writeln('Masukkan "CANCEL" pada input untuk membatalkan');
+
   write('Masukkan nama barang baru: ');
   readln(namaBarangBaru);
+
+  // Mengecek apakah pengguna membatalkan tambah barang
+  if (LowerCase(namaBarangBaru) = 'cancel') then begin
+    write('Tambah data dibatalkan (tekan keyboard untuk melanjutkan) ');
+    readkey;
+    exit;
+  end;
+
   write('Masukkan merk barang baru: ');
   readln(merkBarangBaru);
+
+  if (LowerCase(merkBarangBaru) = 'cancel') then begin
+    write('Tambah data dibatalkan (tekan keyboard untuk melanjutkan) ');
+    readkey;
+    exit;
+  end;
+
   write('Masukkan stok barang baru: ');
   readln(stokBarangBaru);
+
+  if (LowerCase(stokBarangBaru) = 'cancel') then begin
+    write('Tambah data dibatalkan (tekan keyboard untuk melanjutkan) ');
+    readkey;
+    exit;
+  end;
+
   write('Masukkan harga barang baru: ');
   readln(hargaBarangBaru);
+
+  if (LowerCase(hargaBarangBaru) = 'cancel') then begin
+    write('Tambah data dibatalkan (tekan keyboard untuk melanjutkan) ');
+    readkey;
+    exit;
+  end;
 
   try
     // Konfigurasi file json dan nama file
@@ -143,7 +173,7 @@ begin
     // Memasukkan data barang baru pada file json 
     // Berdasarkan index yang baru dan atributnya masing-masing
     temporaryString := '/' + IntToStr(dataBarangLama.Count) + '/id';
-    fileJsonLama.SetValue(temporaryString, dataBarangLama.Count + 1);
+    fileJsonLama.SetValue(temporaryString, dataBarangLama.Count);
     
     temporaryString := '/' + IntToStr(dataBarangLama.Count) + '/nama';
     fileJsonLama.SetValue(temporaryString, namaBarangBaru);
@@ -285,23 +315,31 @@ begin
     write('Barang ', detail_barang.Get('nama'), ' berhasil dihapus (tekan keyboard untuk melanjutkan) ');
     readkey;
 
+    dataBarang.Free;
     fileJsonLama.Free;
   end;
 end;
 
 // Menampilkan detail barang
-function DetailBarangRekursif(index_barang: integer; list_data_barang: TJSONData; id_barang: integer): boolean;
+function DetailBarangRekursif(index_barang: integer; id_barang: integer): boolean;
 var 
+  listDataBarang: TJSONData; // Menampung semua data barang yang ada di dalam file
   detailBarang: TJSONObject; //  Untuk menampung detail barang
   pilihMenuDetail: integer; // Pilihan menu terhadap barang yang ditemukan
 begin
-  // Jika index_barang yang dicari kurang dari 0
+  // Jika index_barang kurang dari 0 atau index_barang kurang dari id_barang yang dicari
   // Maka hentikan algoritma rekursifnya
-  if (index_barang < 0) then exit(False)
-  else begin
+  if ((index_barang < 0) or (index_barang + 1 < id_barang)) then begin
+    // listDataBarang.Free;
+    ReadKey;
+    exit(False);
+
+  end else begin
     
+    // Mengambil semua data barang yang ada di file dataBarang.json
+    listDataBarang := BacaJSON('dataBarang.json');
     // Memasukkan detail barang berdasarkan index barang
-    detailBarang := list_data_barang.Items[index_barang] as TJSONObject;
+    detailBarang := listDataBarang.Items[index_barang] as TJSONObject;
 
     // Jika id dari detailBarang sama dengan id_barang yang dicari
     // Maka tampilkan detailnya dan pilihan menunya
@@ -309,8 +347,11 @@ begin
       repeat
         ClrScr;
 
+        // Membaca ulang data barang yang terbaru
+        listDataBarang := BacaJSON('dataBarang.json');
+
         // Memanggil kembali detail barang untuk mengupdate tampilan barang
-        detailBarang := list_data_barang.Items[index_barang] as TJSONObject;
+        detailBarang := listDataBarang.Items[index_barang] as TJSONObject;
 
         writeln('------ Detail barang ------');
         writeln('ID barang: ', detailBarang.Get('id'));
@@ -333,10 +374,10 @@ begin
 
         end else if (pilihMenuDetail = 2) then begin
           HapusBarang(detailBarang, 'dataBarang.json');
-          exit(False);
+          exit(True);
 
         end else if (pilihMenuDetail = 3) then begin
-          exit(False);
+          exit(True);
           
         end else begin
           writeln('Pilihan tidak ada');
@@ -349,7 +390,7 @@ begin
     end;
 
     // Panggil kembali DetailBarangRekursif sebanyak jumlah barang yang ada di dalam file JSON
-    DetailBarangRekursif(index_barang- 1, list_data_barang, id_barang);
+    DetailBarangRekursif(index_barang - 1, id_barang);
 
   end;
 end;
@@ -367,7 +408,7 @@ begin
 
   listDataBarang := BacaJSON('dataBarang.json');
 
-  barangDitemukan := DetailBarangRekursif(listDataBarang.Count - 1, listDataBarang, idBarang);
+  barangDitemukan := DetailBarangRekursif(listDataBarang.Count - 1, idBarang);
 
   // Jika barang tidak ditemukan, maka tampilkan pesan error
   if (barangDitemukan = false) then begin
@@ -416,7 +457,7 @@ begin
   readln(kataKunci);
 
   ClrScr;
-  writeln('------ Cari barang ------');
+  writeln('------ Cari barang keyword: ', kataKunci ,' ------');
   
   // Membuat kata kunci menjadi huruf kecil semua
   kataKunci := LowerCase(kataKunci);
@@ -431,8 +472,6 @@ begin
 end;
 
 BEGIN
-  readkey;
-
   if not FileExists('dataBarang.json') then begin
     BuatJSON('dataBarang.json');
   end;

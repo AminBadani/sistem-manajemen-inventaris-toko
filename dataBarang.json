@@ -1,7 +1,7 @@
 {
   "1" : {
     "id" : 1,
-    "nama" : "Sabun cuci",
+    "nama" : "Sabun mandi",
     "merk" : "Lifebuoy",
     "stok" : 10,
     "harga" : 10000
@@ -12,5 +12,12 @@
     "merk" : "Makan enak",
     "stok" : 10,
     "harga" : 20000
+  },
+  "2" : {
+    "id" : 2,
+    "nama" : "Pasta gigi",
+    "merk" : "Pepsodent",
+    "stok" : 50,
+    "harga" : 12500
   }
 }
