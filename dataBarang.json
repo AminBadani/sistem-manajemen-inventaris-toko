@@ -1,23 +1,9 @@
 {
-  "1" : {
+  "0" : {
     "id" : 1,
-    "nama" : "Sabun mandi",
+    "nama" : "Sabun cuci",
     "merk" : "Lifebuoy",
-    "stok" : 10,
+    "stok" : 20,
     "harga" : 10000
-  },
-  "3" : {
-    "id" : 3,
-    "nama" : "Makan makan",
-    "merk" : "Makan enak",
-    "stok" : 10,
-    "harga" : 20000
-  },
-  "2" : {
-    "id" : 2,
-    "nama" : "Pasta gigi",
-    "merk" : "Pepsodent",
-    "stok" : 50,
-    "harga" : 12500
   }
 }
