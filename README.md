@@ -7,12 +7,13 @@
 </p>
 
 
-## Auhtor
+## Contributors
 
 - Muhammad Aziz Arrahman - [@MuhammadAzizx](https://github.com/MuhammadAzizx)
 - Ricky Ardi Wardana - [@RickyArdix](https://github.com/RickyArdix)
 - Indra Bima Junio Saputra - [@IndraBima](https://github.com/IndraBima)
 - Ahmad Amin Badani - [@AminBadani](https://github.com/AminBadani/)
+- Meylin Sazkia Putri - [@Meylin176](https://github.com/Meylin176)
 
 
 ## Features
